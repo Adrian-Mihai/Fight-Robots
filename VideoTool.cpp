@@ -1,6 +1,13 @@
 #include <sstream>
 #include <string>
 #include <iostream>
+
+#include <stdio.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netdb.h>
+
 //#include <opencv2\highgui.h>
 #include "opencv2/highgui/highgui.hpp"
 //#include <opencv2\cv.h>
@@ -8,6 +15,10 @@
 
 using namespace std;
 using namespace cv;
+
+char ip[50] = {"193.226.12.217"};
+char port[50] = {"20236"};
+
 //initial min and max HSV filter values.
 //these will be changed using trackbars
 int H_MIN = 0;
@@ -175,9 +186,47 @@ void trackFilteredObject(int &x, int &y, Mat threshold, Mat &cameraFeed) {
 		else putText(cameraFeed, "TOO MUCH NOISE! ADJUST FILTER", Point(0, 50), 1, 2, Scalar(0, 0, 255), 2);
 	}
 }
-int main(int argc, char* argv[])
-{
 
+  void error(char *msg){
+    perror(msg);
+    exit(0);
+  }
+
+int main(int argc, char* argv[])
+{ 
+
+  int sockfd, portno, n;
+  struct sockaddr_in serv_addr;
+  struct hostent *server;
+  char buffer[256];
+  
+  portno = atoi(port);
+  sockfd = socket(AF_INET, SOCK_STREAM, 0);
+  if(sockfd < 0){
+    error("ERROR opening socket!");
+  }
+  server = gethostbyname(ip);
+  if(server == NULL){
+    fprintf(stderr, "ERROR no such host\n");
+    exit(0);
+  }
+  bzero((char*)&serv_addr, sizeof(serv_addr));
+  serv_addr.sin_family = AF_INET;
+  bcopy((char*)server->h_addr, (char*)&serv_addr.sin_addr.s_addr, server->h_length);
+  serv_addr.sin_port = htons(portno);
+  if(connect(sockfd,(struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0){
+    error("ERROR connecting!");  
+  }
+  printf("Please enter the message: ");
+  bzero(buffer, 256);
+  fgets(buffer, 255 ,stdin);
+  n = send(sockfd,buffer,strlen(buffer),0);
+  if(n<0){
+    error("ERROR writing to socket!");
+  }
+  bzero(buffer,256);
+  
+  /*
 	//some boolean variables for different functionality within this
 	//program
 	bool trackObjects = true;
@@ -237,7 +286,7 @@ int main(int argc, char* argv[])
 		//image will not appear without this waitKey() command
 		waitKey(30);
 	}
-
+ */
 	return 0;
 }
 

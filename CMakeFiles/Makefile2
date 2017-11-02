@@ -50,10 +50,10 @@ EQUALS = =
 CMAKE_EDIT_COMMAND = /usr/bin/cmake-gui
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/cloud/AdiTeoValentina/Temp
+CMAKE_SOURCE_DIR = /home/cloud/ProiectFIC/Temp
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/cloud/AdiTeoValentina/Temp
+CMAKE_BINARY_DIR = /home/cloud/ProiectFIC/Temp
 
 #=============================================================================
 # Target rules for target CMakeFiles/VideoTool.dir
@@ -62,7 +62,7 @@ CMAKE_BINARY_DIR = /home/cloud/AdiTeoValentina/Temp
 CMakeFiles/VideoTool.dir/all:
 	$(MAKE) -f CMakeFiles/VideoTool.dir/build.make CMakeFiles/VideoTool.dir/depend
 	$(MAKE) -f CMakeFiles/VideoTool.dir/build.make CMakeFiles/VideoTool.dir/build
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/cloud/AdiTeoValentina/Temp/CMakeFiles  1
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/cloud/ProiectFIC/Temp/CMakeFiles  1
 	@echo "Built target VideoTool"
 .PHONY : CMakeFiles/VideoTool.dir/all
 
@@ -72,9 +72,9 @@ all: CMakeFiles/VideoTool.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/VideoTool.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/cloud/AdiTeoValentina/Temp/CMakeFiles 1
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/cloud/ProiectFIC/Temp/CMakeFiles 1
 	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/VideoTool.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/cloud/AdiTeoValentina/Temp/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/cloud/ProiectFIC/Temp/CMakeFiles 0
 .PHONY : CMakeFiles/VideoTool.dir/rule
 
 # Convenience name for target.
