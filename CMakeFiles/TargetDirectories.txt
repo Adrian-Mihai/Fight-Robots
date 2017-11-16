@@ -1,1 +1,1 @@
-/home/cloud/ProiectFIC/Temp/CMakeFiles/VideoTool.dir
+/home/cloud/Proiect/Temp/CMakeFiles/VideoTool.dir

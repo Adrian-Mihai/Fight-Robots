@@ -6,7 +6,7 @@
 
 #IncludeRegexTransform: 
 
-/home/cloud/ProiectFIC/Temp/VideoTool.cpp
+/home/cloud/Proiect/Temp/VideoTool.cpp
 sstream
 -
 string
@@ -24,9 +24,33 @@ netinet/in.h
 netdb.h
 -
 opencv2/highgui/highgui.hpp
-/home/cloud/ProiectFIC/Temp/opencv2/highgui/highgui.hpp
+/home/cloud/Proiect/Temp/opencv2/highgui/highgui.hpp
 opencv2/opencv.hpp
-/home/cloud/ProiectFIC/Temp/opencv2/opencv.hpp
+/home/cloud/Proiect/Temp/opencv2/opencv.hpp
+sstream
+-
+string
+-
+iostream
+-
+opencv2/highgui/highgui.hpp
+/home/cloud/Proiect/Temp/opencv2/highgui/highgui.hpp
+opencv2/opencv.hpp
+/home/cloud/Proiect/Temp/opencv2/opencv.hpp
+stdio.h
+-
+sys/socket.h
+-
+stdlib.h
+-
+netinet/in.h
+-
+string.h
+-
+time.h
+-
+arpa/inet.h
+-
 
 /usr/local/include/opencv/cxcore.h
 opencv2/core/core_c.h
