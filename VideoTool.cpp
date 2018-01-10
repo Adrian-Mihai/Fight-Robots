@@ -4,6 +4,7 @@
 #include <cmath>
 #include <ctime>
 #include <cstdlib>
+#include <unistd.h>
 
 #include <stdio.h>
 #include <sys/types.h>
@@ -16,18 +17,26 @@
 //#include <opencv2\cv.h>
 #include "opencv2/opencv.hpp"
 
+#define sec 1000000
+
 using namespace std;
 using namespace cv;
 
 char ip[50] = {"193.226.12.217"};
-char *moveRobot = "FBLRS";
-int port = 20236;
-int distance;
+const char *moveForward = "F";
+const char *moveBack = "B";
+const char *moveRight = "R";
+const char *moveLeft = "L";
+const char *stop = "S";
+int port = 20236, goodMove;
+double oldDis;
 
 struct robot
 {
 	int x, y;
-}
+};
+
+robot robotRoz, robotGalben;
 
 //initial min and max HSV filter values.
 //these will be changed using trackbars
@@ -159,7 +168,7 @@ void trackFilteredObject(int &x, int &y, Mat threshold, Mat &cameraFeed)
 	Mat temp;
 	threshold.copyTo(temp);
 	//these two vectors needed for output of findContours
-	vector<vector<Point>> contours;
+	vector<vector<Point> > contours;
 	vector<Vec4i> hierarchy;
 	//find contours of filtered image using openCV findContours function
 	findContours(temp, contours, hierarchy, CV_RETR_CCOMP, CV_CHAIN_APPROX_SIMPLE);
@@ -206,13 +215,13 @@ void trackFilteredObject(int &x, int &y, Mat threshold, Mat &cameraFeed)
 	}
 }
 
-void error(char *msg)
+int randomGen()
 {
-	perror(msg);
-	exit(0);
+	int randomNr = rand() % 4;
+	return randomNr;
 }
 
-void connectToRobot()
+int connectToRobot()
 {
 	int sockfd, portno;
 	struct sockaddr_in serv_addr;
@@ -222,12 +231,13 @@ void connectToRobot()
 	sockfd = socket(AF_INET, SOCK_STREAM, 0);
 	if (sockfd < 0)
 	{
-		error("ERROR opening socket!");
+		cout << "ERROR opening socket!\n";
+		exit(0);
 	}
 	server = gethostbyname(ip);
 	if (server == NULL)
 	{
-		fprintf(stderr, "ERROR no such host\n");
+		cout << "ERROR no such host\n";
 		exit(0);
 	}
 	bzero((char *)&serv_addr, sizeof(serv_addr));
@@ -236,39 +246,88 @@ void connectToRobot()
 	serv_addr.sin_port = htons(portno);
 	if (connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
 	{
-		error("ERROR connecting!");
+		cout << "ERROR connecting!\n";
+		exit(0);
 	}
+	return sockfd;
 }
 
-void makeMove(char move)
+void makeMove(int sockfd,const char *move)
 {
+	int n;
 	n = send(sockfd, move, strlen(move), 0);
 	if (n < 0)
 	{
-		error("ERROR writing to socket!");
+		cout << "ERROR writing to socket!\n";
+		exit(0);
 	}
 }
 
-void Sleep(clock_t sec)
-{
-	clock_t start_time = clock();
-	clock_t end_time = sec * 1000 + start_time;
-	while (clock() != end_time)
-		;
+void battleAlgorithm(int sockfd)
+{ 
+	double newDis = sqrt(pow((robotGalben.x - robotRoz.x), 2) + pow((robotGalben.y - robotRoz.y), 2));	
+	int nr=0;
+	if(newDis < oldDis){
+		switch(goodMove){
+			case 0:
+						makeMove(sockfd, moveForward);
+						usleep(sec);
+						makeMove(sockfd, stop);
+						break;
+			case 1:
+						makeMove(sockfd, moveBack);
+						usleep(sec);
+						makeMove(sockfd, stop);
+						break;
+			case 2:
+						makeMove(sockfd, moveRight);
+						usleep(sec);
+						makeMove(sockfd, stop);
+						break;
+			case 3:	
+						makeMove(sockfd, moveLeft);
+						usleep(sec);
+						makeMove(sockfd, stop);
+						break;
+		}	
+	}else{
+		while(nr == goodMove){
+			nr = randomGen();	
+		}
+		switch(nr){
+				case 0:
+							makeMove(sockfd, moveForward);
+							usleep(sec);
+							makeMove(sockfd, stop);
+							goodMove = 0;
+				break;
+				case 1:
+							makeMove(sockfd, moveBack);
+							usleep(sec);
+							makeMove(sockfd, stop);
+							goodMove = 1;
+				break;
+				case 2:
+							makeMove(sockfd, moveRight);
+							usleep(sec);
+							makeMove(sockfd, stop);
+							goodMove = 2;
+				break;
+				case 3:	
+							makeMove(sockfd, moveLeft);
+							usleep(sec);
+							makeMove(sockfd, stop);
+							goodMove = 3;
+				break;
+		}
+	}
+	oldDis = newDis;	
 }
-
-int random()
-{
-	int random_number = rand() % 4;
-	return random_number;
-}
-
-robot r1, r2;
-//r1-roz  r2-galben
 
 int main(int argc, char *argv[])
 {
-	srand(time(0));
+	srand(time(0));	
+	int sockfd, i=0;
 	//some boolean variables for different functionality within this
 	//program
 	bool trackObjects = true;
@@ -292,9 +351,8 @@ int main(int argc, char *argv[])
 	capture.set(CV_CAP_PROP_FRAME_HEIGHT, FRAME_HEIGHT);
 	//start an infinite loop where webcam feed is copied to cameraFeed matrix
 	//all of our operations will be performed within this loop
-
-	connectToRobot();
-	while (distance != 0)
+	sockfd = connectToRobot();
+	while (1)
 	{
 		//store image to matrix
 		capture.read(cameraFeed);
@@ -316,8 +374,8 @@ int main(int argc, char *argv[])
 		//filtered object
 		if (trackObjects)
 		{
-			trackFilteredObject(r1.x, r1.y, threshold, cameraFeed);
-			trackFilteredObject(r2.x, r2.y, threshold1, cameraFeed);
+			trackFilteredObject(robotRoz.x, robotRoz.y, threshold, cameraFeed);
+			trackFilteredObject(robotGalben.x, robotGalben.y, threshold1, cameraFeed);
 		}
 		//show frames
 		imshow(windowName2, threshold);
@@ -325,14 +383,18 @@ int main(int argc, char *argv[])
 		imshow(windowName, cameraFeed);
 		//imshow(windowName1, HSV);
 		setMouseCallback("Original Image", on_mouse, &p);
+		if(i == 0){
+			oldDis = sqrt(pow((robotGalben.x - robotRoz.x), 2) + pow((robotGalben.y - robotRoz.y), 2));
+			makeMove(sockfd, moveForward);
+			usleep(sec);
+			makeMove(sockfd, stop);
+		}else{
+			battleAlgorithm(sockfd);	
+		}
+		i++;
 		//delay 30ms so that screen can refresh.
 		//image will not appear without this waitKey() command
-		distance = sqrt(pow((r2.x - r1.x), 2) + pow((r2.y - r1.y), 2));
-		makeMove(move[random()]);
-		Sleep(1);
-		makeMove(move[4]);
 		waitKey(30);
 	}
-
 	return 0;
 }

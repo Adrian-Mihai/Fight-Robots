@@ -1,1 +1,3 @@
-/home/cloud/Proiect/Temp/CMakeFiles/VideoTool.dir
+/home/adrian/Temp/CMakeFiles/edit_cache.dir
+/home/adrian/Temp/CMakeFiles/rebuild_cache.dir
+/home/adrian/Temp/CMakeFiles/VideoTool.dir
